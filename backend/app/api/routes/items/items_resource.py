@@ -7,6 +7,7 @@ from app.api.dependencies.items import (
     check_item_modification_permissions,
     get_item_by_slug_from_path,
     get_items_filters,
+    create_image_from_titile,
 )
 from app.api.dependencies.authentication import get_current_user_authorizer
 from app.api.dependencies.database import get_repository
@@ -68,6 +69,9 @@ async def create_new_item(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=strings.ITEM_ALREADY_EXISTS,
         )
+    if not item_create.image:
+        item_create.image = create_image_from_titile(item_create.title)
+        
     item = await items_repo.create_item(
         slug=slug,
         title=item_create.title,
