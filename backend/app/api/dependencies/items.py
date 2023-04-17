@@ -2,6 +2,8 @@ from typing import Optional
 
 from fastapi import Depends, HTTPException, Path, Query
 from starlette import status
+import os
+import openai
 
 from app.api.dependencies.authentication import get_current_user_authorizer
 from app.api.dependencies.database import get_repository
@@ -17,6 +19,7 @@ from app.models.schemas.items import (
 from app.resources import strings
 from app.services.items import check_user_can_modify_item
 
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 def get_items_filters(
     tag: Optional[str] = None,
@@ -57,3 +60,11 @@ def check_item_modification_permissions(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=strings.USER_IS_NOT_SELLER_OF_ITEM,
         )
+
+def create_image_from_titile(prompt):
+    response = openai.Image.create(
+            prompt=prompt,
+            n=1,
+            size='256x256'
+        )
+    return response['data'][0]['url']
